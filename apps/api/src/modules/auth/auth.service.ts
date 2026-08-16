@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
@@ -52,8 +53,10 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
+    const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
+
     const storedToken = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+      where: { token: refreshTokenHash },
       include: { user: true },
     });
 
@@ -85,13 +88,15 @@ export class AuthService {
       expiresIn: '7d',
     });
 
+    const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
+
     // Save refresh token to database
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     await this.prisma.refreshToken.create({
       data: {
-        token: refreshToken,
+        token: refreshTokenHash,
         userId,
         expiresAt,
       },
