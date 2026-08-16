@@ -30,3 +30,9 @@ pids
 # OS files
 .DS_Store
 Thumbs.db
+/generated/prisma
+
+# AI coding tools
+.agents/
+.claude/
+.windsurf/
