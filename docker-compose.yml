@@ -4,10 +4,8 @@ services:
     container_name: financehub-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: financehub
-      MYSQL_USER: fh_user
-      MYSQL_PASSWORD: fh_password
+      MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - '3306:3306'
     volumes:
