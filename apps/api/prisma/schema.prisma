@@ -21,6 +21,7 @@ model User {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   RefreshTokens RefreshToken[]
+  accounts Account[]
 
   @@map("users")
 }
@@ -34,4 +35,29 @@ model RefreshToken {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("refresh_tokens")
+}
+
+enum AccountType {
+  BANK
+  CASH
+  CREDIT_CARD
+  WALLET
+  INVESTMENT
+  LOAN
+}
+
+model Account {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  name        String
+  type        AccountType
+  balance     Decimal     @default(0.00) @db.Decimal(15, 2)
+  currency    String      @default("INR")
+  isArchived  Boolean     @default(false) @map("is_archived")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
 }
