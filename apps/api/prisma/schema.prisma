@@ -22,6 +22,8 @@ model User {
   updatedAt    DateTime      @updatedAt @map("updated_at")
   RefreshTokens RefreshToken[]
   accounts Account[]
+  categories   Category[]
+  transactions Transaction[]
 
   @@map("users")
 }
@@ -56,8 +58,58 @@ model Account {
   isArchived  Boolean     @default(false) @map("is_archived")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
+  transactions         Transaction[] @relation("AccountTransactions")
+  transferTransactions Transaction[] @relation("TransferToTransactions")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("accounts")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+model Category {
+  id        String       @id @default(uuid())
+  userId    String?      @map("user_id") // Nullable for system default categories
+  name      String
+  type      CategoryType
+  icon      String?
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("categories")
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  userId          String          @map("user_id")
+  accountId       String          @map("account_id")
+  toAccountId     String?         @map("to_account_id") // Used specifically for TRANSFER types
+  categoryId      String?         @map("category_id")
+  type            TransactionType
+  amount          Decimal         @db.Decimal(15, 2)
+  description     String
+  notes           String?
+  transactionDate DateTime        @default(now()) @map("transaction_date")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account     Account   @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: Cascade)
+  toAccount   Account?  @relation("TransferToTransactions", fields: [toAccountId], references: [id], onDelete: SetNull)
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("transactions")
 }
