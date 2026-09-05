@@ -4,10 +4,10 @@ import { CategoryType } from '@prisma/client';
 export class CreateCategoryDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(CategoryType)
-  type: CategoryType;
+  type!: CategoryType;
 
   @IsString()
   @IsOptional()
