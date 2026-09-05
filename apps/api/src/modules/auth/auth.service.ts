@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { createHash } from 'crypto';
@@ -44,7 +48,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -53,7 +60,9 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
+    const refreshTokenHash = createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token: refreshTokenHash },
@@ -88,7 +97,9 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
+    const refreshTokenHash = createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
 
     // Save refresh token to database
     const expiresAt = new Date();
