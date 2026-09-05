@@ -26,6 +26,7 @@ model User {
   transactions Transaction[]
   budgets Budget[]
   recurringTransactions RecurringTransaction[]
+  savingsGoals SavingsGoal[]
 
   @@map("users")
 }
@@ -177,4 +178,33 @@ model RecurringTransaction {
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("recurring_transactions")
+}
+
+model SavingsGoal {
+  id            String             @id @default(uuid())
+  userId        String             @map("user_id")
+  name          String
+  targetAmount  Decimal            @map("target_amount") @db.Decimal(15, 2)
+  currentAmount Decimal            @default(0.00) @map("current_amount") @db.Decimal(15, 2)
+  targetDate    DateTime?          @map("target_date")
+  isCompleted   Boolean            @default(false) @map("is_completed")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contributions GoalContribution[]
+
+  @@map("savings_goals")
+}
+
+model GoalContribution {
+  id          String      @id @default(uuid())
+  goalId      String      @map("goal_id")
+  amount      Decimal     @db.Decimal(15, 2)
+  notes       String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  goal        SavingsGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@map("goal_contributions")
 }

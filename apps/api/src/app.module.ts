@@ -9,6 +9,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { BudgetsModule } from './modules/budgets/budgets.module';
 import { RecurringModule } from './modules/recurring/recurring.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { GoalsModule } from './modules/goals/goals.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     BudgetsModule,
     RecurringModule,
     DashboardModule,
+    GoalsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
