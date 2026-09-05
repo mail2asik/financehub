@@ -73,6 +73,23 @@ export class TransactionsService {
         });
       }
 
+      // Create Transaction Record
+      const transaction = await tx.transaction.create({
+        data: {
+          userId,
+          accountId: dto.accountId,
+          toAccountId: dto.toAccountId || null,
+          categoryId: dto.categoryId || null,
+          type: dto.type,
+          amount: amountDecimal,
+          description: dto.description,
+          notes: dto.notes,
+          transactionDate: dto.transactionDate
+            ? new Date(dto.transactionDate)
+            : new Date(),
+        },
+      });
+
       // Inside TransactionsService after creating an expense transaction:
       if (dto.type === TransactionType.EXPENSE && dto.categoryId) {
         const currentDate = new Date();
@@ -112,22 +129,7 @@ export class TransactionsService {
         }
       }
 
-      // Create Transaction Record
-      return tx.transaction.create({
-        data: {
-          userId,
-          accountId: dto.accountId,
-          toAccountId: dto.toAccountId || null,
-          categoryId: dto.categoryId || null,
-          type: dto.type,
-          amount: amountDecimal,
-          description: dto.description,
-          notes: dto.notes,
-          transactionDate: dto.transactionDate
-            ? new Date(dto.transactionDate)
-            : new Date(),
-        },
-      });
+      return transaction;
     });
   }
 
