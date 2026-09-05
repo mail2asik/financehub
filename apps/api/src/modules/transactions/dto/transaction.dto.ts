@@ -1,11 +1,19 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsDateString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsDateString,
+  Min,
+} from 'class-validator';
 import { TransactionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class CreateTransactionDto {
   @IsString()
   @IsNotEmpty()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
   @IsOptional()
@@ -16,16 +24,16 @@ export class CreateTransactionDto {
   categoryId?: string;
 
   @IsEnum(TransactionType)
-  type: TransactionType;
+  type!: TransactionType;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
   @Type(() => Number)
-  amount: number;
+  amount!: number;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsString()
   @IsOptional()

@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { Prisma, TransactionType } from '@prisma/client';
@@ -28,7 +32,9 @@ export class TransactionsService {
       // Process Transfer Type
       if (dto.type === TransactionType.TRANSFER) {
         if (!dto.toAccountId) {
-          throw new BadRequestException('Destination account is required for transfers');
+          throw new BadRequestException(
+            'Destination account is required for transfers',
+          );
         }
         if (dto.accountId === dto.toAccountId) {
           throw new BadRequestException('Cannot transfer to the same account');
@@ -76,19 +82,24 @@ export class TransactionsService {
           currentDate.getFullYear(),
         );
 
-        const categoryBudget = (budgetDetails.categories as Array<{
-          categoryId: string;
-          categoryName: string;
-          isNearLimit: boolean;
-          isExceeded: boolean;
-          percentageUsed: number;
-          allocated: number;
-          spent: number;
-        }>).find(
-          (c) => c.categoryId === dto.categoryId,
-        );
-        if (categoryBudget && (categoryBudget.isNearLimit || categoryBudget.isExceeded)) {
-          const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const categoryBudget = (
+          budgetDetails.categories as Array<{
+            categoryId: string;
+            categoryName: string;
+            isNearLimit: boolean;
+            isExceeded: boolean;
+            percentageUsed: number;
+            allocated: number;
+            spent: number;
+          }>
+        ).find((c) => c.categoryId === dto.categoryId);
+        if (
+          categoryBudget &&
+          (categoryBudget.isNearLimit || categoryBudget.isExceeded)
+        ) {
+          const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+          });
           if (user) {
             await this.notificationsService.sendBudgetWarning(
               user.email,
@@ -112,7 +123,9 @@ export class TransactionsService {
           amount: amountDecimal,
           description: dto.description,
           notes: dto.notes,
-          transactionDate: dto.transactionDate ? new Date(dto.transactionDate) : new Date(),
+          transactionDate: dto.transactionDate
+            ? new Date(dto.transactionDate)
+            : new Date(),
         },
       });
     });
