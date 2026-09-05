@@ -1,11 +1,19 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsDateString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsDateString,
+  Min,
+} from 'class-validator';
 import { RecurrenceFrequency, TransactionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class CreateRecurringDto {
   @IsString()
   @IsNotEmpty()
-  accountId: string;
+  accountId!: string;
 
   @IsString()
   @IsOptional()
@@ -16,20 +24,20 @@ export class CreateRecurringDto {
   categoryId?: string;
 
   @IsEnum(TransactionType)
-  type: TransactionType;
+  type!: TransactionType;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
   @Type(() => Number)
-  amount: number;
+  amount!: number;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
-  @IsEnum(RecurrenceFrequency)
-  frequency: RecurrenceFrequency;
+  @IsEnum(RecurrenceFrequency as object)
+  frequency!: RecurrenceFrequency;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 }
