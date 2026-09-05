@@ -12,6 +12,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { GoalsModule } from './modules/goals/goals.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { NotificationsModule } from './infrastructure/notifications/notifications.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NotificationsModule } from './infrastructure/notifications/notification
     GoalsModule,
     MailModule,
     NotificationsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
