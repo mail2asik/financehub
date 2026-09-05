@@ -2,10 +2,16 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { Prisma, TransactionType } from '@prisma/client';
+import { BudgetsService } from '../budgets/budgets.service';
+import { NotificationsService } from '../../infrastructure/notifications/notifications.service';
 
 @Injectable()
 export class TransactionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private budgetsService: BudgetsService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(userId: string, dto: CreateTransactionDto) {
     const amountDecimal = new Prisma.Decimal(dto.amount);
@@ -59,6 +65,40 @@ export class TransactionsService {
           where: { id: sourceAccount.id },
           data: { balance: { increment: amountDecimal } },
         });
+      }
+
+      // Inside TransactionsService after creating an expense transaction:
+      if (dto.type === TransactionType.EXPENSE && dto.categoryId) {
+        const currentDate = new Date();
+        const budgetDetails = await this.budgetsService.getBudgetDetails(
+          userId,
+          currentDate.getMonth() + 1,
+          currentDate.getFullYear(),
+        );
+
+        const categoryBudget = (budgetDetails.categories as Array<{
+          categoryId: string;
+          categoryName: string;
+          isNearLimit: boolean;
+          isExceeded: boolean;
+          percentageUsed: number;
+          allocated: number;
+          spent: number;
+        }>).find(
+          (c) => c.categoryId === dto.categoryId,
+        );
+        if (categoryBudget && (categoryBudget.isNearLimit || categoryBudget.isExceeded)) {
+          const user = await this.prisma.user.findUnique({ where: { id: userId } });
+          if (user) {
+            await this.notificationsService.sendBudgetWarning(
+              user.email,
+              categoryBudget.categoryName,
+              categoryBudget.percentageUsed,
+              categoryBudget.allocated,
+              categoryBudget.spent,
+            );
+          }
+        }
       }
 
       // Create Transaction Record

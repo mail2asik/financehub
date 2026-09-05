@@ -10,6 +10,8 @@ import { BudgetsModule } from './modules/budgets/budgets.module';
 import { RecurringModule } from './modules/recurring/recurring.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { GoalsModule } from './modules/goals/goals.module';
+import { MailModule } from './infrastructure/mail/mail.module';
+import { NotificationsModule } from './infrastructure/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { GoalsModule } from './modules/goals/goals.module';
     RecurringModule,
     DashboardModule,
     GoalsModule,
+    MailModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
