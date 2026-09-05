@@ -8,6 +8,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { BudgetsModule } from './modules/budgets/budgets.module';
 import { RecurringModule } from './modules/recurring/recurring.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RecurringModule } from './modules/recurring/recurring.module';
     TransactionsModule,
     BudgetsModule,
     RecurringModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
