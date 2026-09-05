@@ -34,7 +34,7 @@ export class RecurringService {
 
   async processDueRecurringTransactions() {
     const now = new Date();
-
+    console.log(`Processing due recurring transactions at ${now.toISOString()}`);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const dueRules: RecurringTransaction[] = await this.prisma.recurringTransaction.findMany({
       where: {
