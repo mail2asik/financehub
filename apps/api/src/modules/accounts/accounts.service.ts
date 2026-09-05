@@ -27,11 +27,17 @@ export class AccountsService {
 
     // Calculate overall balance summaries
     const totalAssets = accounts
-      .filter((a) => a.type !== AccountType.CREDIT_CARD && a.type !== AccountType.LOAN)
+      .filter(
+        (a) =>
+          a.type !== AccountType.CREDIT_CARD && a.type !== AccountType.LOAN,
+      )
       .reduce((sum, a) => sum.add(a.balance), new Prisma.Decimal(0));
 
     const totalLiabilities = accounts
-      .filter((a) => a.type === AccountType.CREDIT_CARD || a.type === AccountType.LOAN)
+      .filter(
+        (a) =>
+          a.type === AccountType.CREDIT_CARD || a.type === AccountType.LOAN,
+      )
       .reduce((sum, a) => sum.add(a.balance), new Prisma.Decimal(0));
 
     const netBalance = totalAssets.sub(totalLiabilities);

@@ -1,14 +1,20 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { AccountType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class CreateAccountDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(AccountType, { message: 'Invalid account type' })
-  type: AccountType;
+  type!: AccountType;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @Type(() => Number)
