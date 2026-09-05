@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateBudgetDto } from './dto/budget.dto';
 import { Prisma, TransactionType } from '@prisma/client';
@@ -47,7 +47,9 @@ export class BudgetsService {
       where: { userId_month_year: { userId, month, year } },
       include: {
         categories: {
-          include: { category: { select: { id: true, name: true, icon: true } } },
+          include: {
+            category: { select: { id: true, name: true, icon: true } },
+          },
         },
       },
     });
