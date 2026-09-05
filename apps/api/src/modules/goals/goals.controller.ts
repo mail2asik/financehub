@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { GoalsService } from './goals.service';
 import { CreateGoalDto, AddContributionDto } from './dto/goal.dto';
 import { AuthGuard } from '@nestjs/passport';
