@@ -2,19 +2,33 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
+import { createHash, randomInt } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import {
+  RegisterDto,
+  LoginDto,
+  ActivateAccountDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
+import { NotificationsService } from '../../infrastructure/notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private notificationsService: NotificationsService,
   ) {}
+
+  private generateSixDigitCode(): string {
+    return randomInt(100000, 999999).toString();
+  }
 
   async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -26,6 +40,8 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
+    const activationCode = this.generateSixDigitCode();
+    const activationCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiration
 
     const user = await this.prisma.user.create({
       data: {
@@ -33,10 +49,54 @@ export class AuthService {
         passwordHash,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        isActivated: false,
+        activationCode,
+        activationCodeExpiresAt,
       },
     });
 
-    return this.generateTokens(user.id, user.email);
+    // Send Activation Email via Mailpit Queue
+    await this.notificationsService.sendActivationEmail(
+      user.email,
+      activationCode,
+    );
+
+    return {
+      message: 'Registration successful. Please check your email for the activation code.',
+    };
+  }
+
+  async activateAccount(dto: ActivateAccountDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.isActivated) {
+      throw new BadRequestException('Account is already activated');
+    }
+
+    if (
+      user.activationCode !== dto.code ||
+      !user.activationCodeExpiresAt ||
+      user.activationCodeExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired activation code');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isActivated: true,
+        activationCode: null,
+        activationCodeExpiresAt: null,
+      },
+    });
+
+    return { message: 'Account activated successfully. You can now log in.' };
   }
 
   async login(dto: LoginDto) {
@@ -56,7 +116,83 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.isActivated) {
+      throw new UnauthorizedException(
+        'Account is not activated. Please activate your account first.',
+      );
+    }
+
     return this.generateTokens(user.id, user.email);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    // Always return success message to prevent email enumeration attacks
+    if (!user) {
+      return {
+        message: 'If the email exists, a password reset code has been sent.',
+      };
+    }
+
+    const resetCode = this.generateSixDigitCode();
+    const resetCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiration
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordCode: resetCode,
+        resetPasswordCodeExpiresAt: resetCodeExpiresAt,
+      },
+    });
+
+    // Dispatch email notification job
+    await this.notificationsService.sendPasswordResetEmail(
+      user.email,
+      resetCode,
+    );
+
+    return {
+      message: 'If the email exists, a password reset code has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid request or code');
+    }
+
+    if (
+      user.resetPasswordCode !== dto.code ||
+      !user.resetPasswordCodeExpiresAt ||
+      user.resetPasswordCodeExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired password reset code');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        resetPasswordCode: null,
+        resetPasswordCodeExpiresAt: null,
+      },
+    });
+
+    // Revoke all active refresh tokens for security
+    await this.prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+
+    return {
+      message: 'Password reset successfully. Please log in with your new password.',
+    };
   }
 
   async refreshToken(refreshToken: string) {
@@ -73,7 +209,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // Revoke used refresh token (Token Rotation)
     await this.prisma.refreshToken.delete({ where: { id: storedToken.id } });
 
     return this.generateTokens(storedToken.user.id, storedToken.user.email);
@@ -101,7 +236,6 @@ export class AuthService {
       .update(refreshToken)
       .digest('hex');
 
-    // Save refresh token to database
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 

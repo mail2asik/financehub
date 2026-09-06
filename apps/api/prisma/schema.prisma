@@ -18,6 +18,16 @@ model User {
   firstName    String        @map("first_name")
   lastName     String        @map("last_name")
   role         Role          @default(USER)
+  
+  // Activation Fields
+  isActivated                Boolean  @default(false) @map("is_activated")
+  activationCode             String?  @map("activation_code")
+  activationCodeExpiresAt    DateTime? @map("activation_code_expires_at")
+
+  // Password Reset Fields
+  resetPasswordCode          String?  @map("reset_password_code")
+  resetPasswordCodeExpiresAt DateTime? @map("reset_password_code_expires_at")
+
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   RefreshTokens RefreshToken[]
