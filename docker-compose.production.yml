@@ -37,17 +37,12 @@ services:
       - '8025:8025' # Web UI
       - '1025:1025' # SMTP
 
-  # Development API with NestJS Watch Mode & Hot Reloading
   api:
-    image: node:20-alpine
-    container_name: financehub-api-dev
-    working_dir: /app
-    volumes:
-      - ./apps/api:/app
-      - /app/node_modules # Anonymous volume to prevent local node_modules overwrite
-    ports:
-      - '3000:3000'
-    command: sh -c "npm install && npx prisma generate && npm run start:dev"
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: financehub-api
+    restart: always
     environment:
       DATABASE_URL: "mysql://root:rootpassword@mysql:3306/financehub"
       REDIS_HOST: "redis"
@@ -58,19 +53,13 @@ services:
       redis:
         condition: service_healthy
 
-  # Development Frontend with Vite Hot Module Replacement (HMR)
   web:
-    image: node:20-alpine
-    container_name: financehub-web-dev
-    working_dir: /app
-    volumes:
-      - ./apps/web:/app
-      - /app/node_modules # Anonymous volume to prevent local node_modules overwrite
-    ports:
-      - '5173:5173'
-    command: sh -c "npm install && npm run dev"
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: financehub-web
+    restart: always
 
-  # Nginx reverse proxy
   nginx:
     image: nginx:alpine
     container_name: financehub-nginx
@@ -78,7 +67,7 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/default.production.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - web
       - api
