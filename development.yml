@@ -3,11 +3,16 @@ services:
     image: mysql:8.0
     container_name: financehub-mysql
     restart: always
+    env_file:
+      - path: .development.env
+        required: true
+      - path: .development.local.env
+        required: false
     environment:
-      MYSQL_DATABASE: financehub
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - '3306:3306'
+      - '${DATABASE_PORT}:3306'
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
@@ -20,7 +25,7 @@ services:
     container_name: financehub-redis
     restart: always
     ports:
-      - '6379:6379'
+      - '${REDIS_PORT}:6379'
     volumes:
       - redis_data:/data
     healthcheck:
@@ -44,14 +49,15 @@ services:
     working_dir: /app
     volumes:
       - ./apps/api:/app
-      - /app/node_modules # Anonymous volume to prevent local node_modules overwrite
+      - /app/node_modules
     ports:
       - '3000:3000'
     command: sh -c "npm install && npx prisma generate && npm run start:dev"
-    environment:
-      DATABASE_URL: "mysql://root:rootpassword@mysql:3306/financehub"
-      REDIS_HOST: "redis"
-      REDIS_PORT: 6379
+    env_file:
+      - path: .development.env
+        required: true
+      - path: .development.local.env
+        required: false
     depends_on:
       mysql:
         condition: service_healthy
@@ -65,10 +71,15 @@ services:
     working_dir: /app
     volumes:
       - ./apps/web:/app
-      - /app/node_modules # Anonymous volume to prevent local node_modules overwrite
+      - /app/node_modules
     ports:
       - '5173:5173'
     command: sh -c "npm install && npm run dev"
+    env_file:
+      - path: .development.env
+        required: true
+      - path: .development.local.env
+        required: false
 
   # Nginx reverse proxy
   nginx:

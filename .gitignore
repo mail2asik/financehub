@@ -1,0 +1,3 @@
+# Environment local override files
+.development.local.env
+.production.local.env

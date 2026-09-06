@@ -3,11 +3,16 @@ services:
     image: mysql:8.0
     container_name: mysql
     restart: always
+    env_file:
+      - path: .production.env
+        required: true
+      - path: .production.local.env
+        required: false
     environment:
-      MYSQL_DATABASE: root
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - '3306:3306'
+      - '${MYSQL_PORT}:3306'
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
@@ -20,7 +25,7 @@ services:
     container_name: redis
     restart: always
     ports:
-      - '6379:6379'
+      - '${REDIS_PORT}:6379'
     volumes:
       - redis_data:/data
     healthcheck:
@@ -43,6 +48,11 @@ services:
       dockerfile: Dockerfile
     container_name: financehub-api
     restart: always
+    env_file:
+      - path: .production.env
+        required: true
+      - path: .production.local.env
+        required: false
     depends_on:
       mysql:
         condition: service_healthy
@@ -55,6 +65,11 @@ services:
       dockerfile: Dockerfile
     container_name: financehub-web
     restart: always
+    env_file:
+      - path: .production.env
+        required: true
+      - path: .production.local.env
+        required: false
 
   nginx:
     image: nginx:alpine
