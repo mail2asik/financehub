@@ -148,7 +148,7 @@ docker compose -f development.yml logs -f api
 **Stop Development Services:**
 
 ```bash
-docker compose -f development.yml down
+docker compose --env-file .development.env -f development.yml down
 ```
 
 ### Option B: Production Deployment
@@ -164,7 +164,7 @@ docker compose --env-file .production.env -f production.yml up --build -d
 **Stop Production Services:**
 
 ```bash
-docker compose -f production.yml down
+docker compose --env-file .production.env -f production.yml down
 ```
 
 ---
@@ -176,11 +176,5 @@ To execute Prisma CLI commands inside the running API development container:
 **Run Database Migrations:**
 
 ```bash
-docker compose -f development.yml exec api npx prisma migrate dev
-```
-
-**Open Prisma Studio:**
-
-```bash
-docker compose -f development.yml exec api npx prisma studio
+docker compose --env-file .development.env -f development.yml exec api npx prisma migrate dev
 ```
