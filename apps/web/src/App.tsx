@@ -4,14 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PublicLayout from './layouts/PublicLayout';
 import PrivateLayout from './layouts/PrivateLayout';
 import Home from './pages/public/Home';
+import About from './pages/public/About';
+import HowItWorks from './pages/public/HowItWorks';
+import Contact from './pages/public/Contact';
 
 const queryClient = new QueryClient();
 
-interface PagePlaceholderProps {
-  title: string;
-}
-
-const PagePlaceholder: React.FC<PagePlaceholderProps> = ({ title }) => (
+const PagePlaceholder: React.FC<{ title: string }> = ({ title }) => (
   <div className="p-8 bg-white rounded-xl border border-slate-200 shadow-sm text-center">
     <h2 className="text-2xl font-bold text-slate-800 mb-2">{title} Page</h2>
     <p className="text-slate-500">API integration and views will be populated in the next step.</p>
@@ -26,9 +25,9 @@ export function App(): React.JSX.Element {
           {/* Public Routes */}
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<Home />} />
-            <Route path="about" element={<PagePlaceholder title="About Us" />} />
-            <Route path="how-it-works" element={<PagePlaceholder title="How It Works" />} />
-            <Route path="contact" element={<PagePlaceholder title="Contact Us" />} />
+            <Route path="about" element={<About />} />
+            <Route path="how-it-works" element={<HowItWorks />} />
+            <Route path="contact" element={<Contact />} />
             <Route path="login" element={<PagePlaceholder title="Login" />} />
             <Route path="register" element={<PagePlaceholder title="Register" />} />
             <Route path="activation" element={<PagePlaceholder title="Account Activation" />} />
