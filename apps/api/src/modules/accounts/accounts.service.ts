@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateAccountDto, UpdateAccountDto } from './dto/account.dto';
 import { AccountType, Prisma } from '@prisma/client';
+import { ApiException } from 'src/common/exceptions/api.exception';
 
 @Injectable()
 export class AccountsService {
@@ -58,7 +59,11 @@ export class AccountsService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new ApiException(
+        'Account not found',
+        'ACCOUNT_NOT_FOUND',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return account;

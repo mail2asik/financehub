@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomInt } from 'crypto';
@@ -17,6 +11,7 @@ import {
   ResetPasswordDto,
 } from './dto/auth.dto';
 import { NotificationsService } from '../../infrastructure/notifications/notifications.service';
+import { ApiException } from 'src/common/exceptions/api.exception';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +31,11 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already in use');
+      throw new ApiException(
+        'Email already in use',
+        'EMAIL_ALREADY_IN_USE',
+        HttpStatus.CONFLICT,
+      );
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -72,11 +71,19 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new ApiException(
+        'User not found',
+        'USER_NOT_FOUND',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (user.isActivated) {
-      throw new BadRequestException('Account is already activated');
+      throw new ApiException(
+        'Account is already activated',
+        'ACCOUNT_ALREADY_ACTIVATED',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (
@@ -84,7 +91,11 @@ export class AuthService {
       !user.activationCodeExpiresAt ||
       user.activationCodeExpiresAt < new Date()
     ) {
-      throw new BadRequestException('Invalid or expired activation code');
+      throw new ApiException(
+        'Invalid or expired activation code',
+        'INVALID_OR_EXPIRED_ACTIVATION_CODE',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     await this.prisma.user.update({
@@ -105,7 +116,11 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ApiException(
+        'Invalid credentials',
+        'INVALID_CREDENTIALS',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -113,12 +128,18 @@ export class AuthService {
       user.passwordHash,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ApiException(
+        'Invalid credentials',
+        'INVALID_CREDENTIALS',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (!user.isActivated) {
-      throw new UnauthorizedException(
+      throw new ApiException(
         'Account is not activated. Please activate your account first.',
+        'ACCOUNT_NOT_ACTIVATED',
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -165,7 +186,11 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid request or code');
+      throw new ApiException(
+        'Invalid request or code',
+        'INVALID_REQUEST_OR_CODE',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (
@@ -173,7 +198,11 @@ export class AuthService {
       !user.resetPasswordCodeExpiresAt ||
       user.resetPasswordCodeExpiresAt < new Date()
     ) {
-      throw new BadRequestException('Invalid or expired password reset code');
+      throw new ApiException(
+        'Invalid or expired password reset code',
+        'INVALID_OR_EXPIRED_PASSWORD_RESET_CODE',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -206,7 +235,11 @@ export class AuthService {
     });
 
     if (!storedToken || storedToken.expiresAt < new Date()) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new ApiException(
+        'Invalid or expired refresh token',
+        'INVALID_OR_EXPIRED_REFRESH_TOKEN',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     await this.prisma.refreshToken.delete({ where: { id: storedToken.id } });

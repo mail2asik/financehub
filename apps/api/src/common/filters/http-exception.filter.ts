@@ -10,6 +10,7 @@ import { Request, Response } from 'express';
 interface ErrorResponse {
   success: false;
   message: string | string[];
+  code: string;
   error: string;
   statusCode: number;
   timestamp: string;
@@ -26,6 +27,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
+    let code = 'INTERNAL_SERVER_ERROR';
     let error = 'Internal Server Error';
 
     if (exception instanceof HttpException) {
@@ -39,10 +41,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else if (typeof exceptionResponse === 'object') {
         const responseObject = exceptionResponse as {
           message?: string | string[];
+          code?: string;
           error?: string;
         };
 
         message = responseObject.message ?? exception.message;
+
+        code = responseObject.code ?? this.getDefaultErrorCode(statusCode);
+
         error = responseObject.error ?? exception.name;
       }
     }
@@ -50,6 +56,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const errorResponse: ErrorResponse = {
       success: false,
       message,
+      code,
       error,
       statusCode,
       timestamp: new Date().toISOString(),
@@ -57,5 +64,35 @@ export class HttpExceptionFilter implements ExceptionFilter {
     };
 
     response.status(statusCode).json(errorResponse);
+  }
+
+  private getDefaultErrorCode(statusCode: number): string {
+    switch (statusCode) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.BAD_REQUEST:
+        return 'BAD_REQUEST';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.UNAUTHORIZED:
+        return 'UNAUTHORIZED';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.FORBIDDEN:
+        return 'FORBIDDEN';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.NOT_FOUND:
+        return 'NOT_FOUND';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.CONFLICT:
+        return 'CONFLICT';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+      case HttpStatus.UNPROCESSABLE_ENTITY:
+        return 'VALIDATION_ERROR';
+
+      default:
+        return 'INTERNAL_SERVER_ERROR';
+    }
   }
 }

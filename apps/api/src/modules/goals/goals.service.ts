@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateGoalDto, AddContributionDto } from './dto/goal.dto';
 import { Prisma } from '@prisma/client';
+import { ApiException } from 'src/common/exceptions/api.exception';
 
 @Injectable()
 export class GoalsService {
@@ -44,7 +45,11 @@ export class GoalsService {
     });
 
     if (!goal) {
-      throw new NotFoundException('Savings goal not found');
+      throw new ApiException(
+        'Savings goal not found',
+        'SAVINGS_GOAL_NOT_FOUND',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const contributionAmount = new Prisma.Decimal(dto.amount);

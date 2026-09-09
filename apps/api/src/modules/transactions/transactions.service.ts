@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { Prisma, TransactionType } from '@prisma/client';
 import { BudgetsService } from '../budgets/budgets.service';
 import { NotificationsService } from '../../infrastructure/notifications/notifications.service';
-
+import { ApiException } from 'src/common/exceptions/api.exception';
 @Injectable()
 export class TransactionsService {
   constructor(
@@ -26,25 +22,39 @@ export class TransactionsService {
         where: { id: dto.accountId, userId },
       });
       if (!sourceAccount) {
-        throw new NotFoundException('Source account not found');
+        throw new ApiException(
+          'Source account not found',
+          'SOURCE_ACCOUNT_NOT_FOUND',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       // Process Transfer Type
       if (dto.type === TransactionType.TRANSFER) {
         if (!dto.toAccountId) {
-          throw new BadRequestException(
+          throw new ApiException(
             'Destination account is required for transfers',
+            'DESTINATION_ACCOUNT_REQUIRED',
+            HttpStatus.BAD_REQUEST,
           );
         }
         if (dto.accountId === dto.toAccountId) {
-          throw new BadRequestException('Cannot transfer to the same account');
+          throw new ApiException(
+            'Cannot transfer to the same account',
+            'CANNOT_TRANSFER_TO_SAME_ACCOUNT',
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
         const destAccount = await tx.account.findFirst({
           where: { id: dto.toAccountId, userId },
         });
         if (!destAccount) {
-          throw new NotFoundException('Destination account not found');
+          throw new ApiException(
+            'Destination account not found',
+            'DESTINATION_ACCOUNT_NOT_FOUND',
+            HttpStatus.NOT_FOUND,
+          );
         }
 
         // Debit source account, Credit destination account
