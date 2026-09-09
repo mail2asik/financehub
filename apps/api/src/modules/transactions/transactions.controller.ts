@@ -11,6 +11,7 @@ import { Request as ExpressRequest } from 'express';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/transaction.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiMessage } from 'src/common/decorators/api-message.decorator';
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: {
@@ -24,6 +25,7 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
+  @ApiMessage('Transaction created successfully')
   create(
     @Request() req: AuthenticatedRequest,
     @Body() dto: CreateTransactionDto,
@@ -32,6 +34,7 @@ export class TransactionsController {
   }
 
   @Get()
+  @ApiMessage('Fetched transactions successfully')
   findAll(
     @Request() req: AuthenticatedRequest,
     @Query('page') page?: string,

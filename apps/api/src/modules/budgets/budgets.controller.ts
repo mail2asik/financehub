@@ -11,6 +11,7 @@ import { Request as ExpressRequest } from 'express';
 import { BudgetsService } from './budgets.service';
 import { CreateBudgetDto } from './dto/budget.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiMessage } from 'src/common/decorators/api-message.decorator';
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: {
@@ -24,6 +25,7 @@ export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}
 
   @Post()
+  @ApiMessage('Budget created or updated successfully')
   createOrUpdate(
     @NestRequest() req: AuthenticatedRequest,
     @Body() dto: CreateBudgetDto,
@@ -32,6 +34,7 @@ export class BudgetsController {
   }
 
   @Get()
+  @ApiMessage('Fetched budget successfully')
   getBudget(
     @NestRequest() req: AuthenticatedRequest,
     @Query('month') month: string,

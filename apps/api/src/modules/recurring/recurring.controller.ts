@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { ApiMessage } from 'src/common/decorators/api-message.decorator';
 import { RecurringService } from './recurring.service';
 import { CreateRecurringDto } from './dto/recurring.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -16,6 +17,7 @@ export class RecurringController {
   constructor(private readonly recurringService: RecurringService) {}
 
   @Post()
+  @ApiMessage('Recurring transaction created successfully')
   create(
     @Request() req: AuthenticatedRequest,
     @Body() dto: CreateRecurringDto,

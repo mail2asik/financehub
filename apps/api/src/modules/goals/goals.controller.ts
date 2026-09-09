@@ -10,6 +10,7 @@ import {
 import { GoalsService } from './goals.service';
 import { CreateGoalDto, AddContributionDto } from './dto/goal.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiMessage } from 'src/common/decorators/api-message.decorator';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('goals')
@@ -17,16 +18,19 @@ export class GoalsController {
   constructor(private readonly goalsService: GoalsService) {}
 
   @Post()
+  @ApiMessage('Goal created successfully')
   create(@Request() req, @Body() dto: CreateGoalDto) {
     return this.goalsService.create(req.user.id, dto);
   }
 
   @Get()
+  @ApiMessage('Fetched goals successfully')
   findAll(@Request() req) {
     return this.goalsService.findAllByUser(req.user.id);
   }
 
   @Post(':id/contribute')
+  @ApiMessage('Contribution added successfully')
   addContribution(
     @Request() req,
     @Param('id') id: string,

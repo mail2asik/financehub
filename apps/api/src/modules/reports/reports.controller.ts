@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { ApiMessage } from 'src/common/decorators/api-message.decorator';
 import { ReportsService } from './reports.service';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request as ExpressRequest, Response } from 'express';
@@ -22,6 +23,7 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get('monthly')
+  @ApiMessage('Fetched monthly report successfully')
   getMonthlyReport(
     @Request() req: AuthenticatedRequest,
     @Query('month') month: string,
@@ -33,6 +35,7 @@ export class ReportsController {
   }
 
   @Get('export/csv')
+  @ApiMessage('Exported CSV report successfully')
   async exportCsv(
     @Request() req: AuthenticatedRequest,
     @Query('month') month: string,
@@ -58,6 +61,7 @@ export class ReportsController {
   }
 
   @Get('export/pdf')
+  @ApiMessage('Exported PDF report successfully')
   async exportPdf(
     @Request() req: AuthenticatedRequest,
     @Query('month') month: string,
