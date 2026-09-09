@@ -30,13 +30,15 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  @ApiMessage('Registration successful')
+  @ApiMessage(
+    'Registration successful. Please check your email for the activation code.',
+  )
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Post('activate')
-  @ApiMessage('Account activation successful')
+  @ApiMessage('Account activated successfully. You can now log in.')
   activate(@Body() dto: ActivateAccountDto) {
     return this.authService.activateAccount(dto);
   }

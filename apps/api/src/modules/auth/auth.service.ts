@@ -60,9 +60,7 @@ export class AuthService {
       activationCode,
     );
 
-    return {
-      message: 'Registration successful. Please check your email for the activation code.',
-    };
+    return;
   }
 
   async activateAccount(dto: ActivateAccountDto) {
@@ -107,7 +105,7 @@ export class AuthService {
       },
     });
 
-    return { message: 'Account activated successfully. You can now log in.' };
+    return;
   }
 
   async login(dto: LoginDto) {
@@ -249,7 +247,7 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.prisma.refreshToken.deleteMany({ where: { userId } });
-    return { message: 'Logged out successfully' };
+    return;
   }
 
   private async generateTokens(userId: string, email: string) {
