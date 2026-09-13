@@ -13,6 +13,7 @@ import Activation from './pages/public/Activation';
 import Login from './pages/public/Login';
 import ForgotPassword from './pages/public/ForgotPassword';
 import ResetPassword from './pages/public/ResetPassword';
+import Accounts from './pages/private/Accounts';
 
 const queryClient = new QueryClient();
 
@@ -60,7 +61,7 @@ export function App(): React.JSX.Element {
               }
             >
               <Route path="dashboard" element={<PagePlaceholder title="Dashboard" />} />
-              <Route path="accounts" element={<PagePlaceholder title="Accounts" />} />
+              <Route path="accounts" element={<Accounts />} />
               <Route path="categories" element={<PagePlaceholder title="Categories" />} />
               <Route path="transactions" element={<PagePlaceholder title="Transactions" />} />
               <Route path="budgets" element={<PagePlaceholder title="Budgets" />} />
