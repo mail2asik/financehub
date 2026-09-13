@@ -35,7 +35,7 @@ export class CreateRecurringDto {
   @IsNotEmpty()
   description!: string;
 
-  @IsEnum(RecurrenceFrequency as object)
+  @IsEnum(RecurrenceFrequency)
   frequency!: RecurrenceFrequency;
 
   @IsDateString()

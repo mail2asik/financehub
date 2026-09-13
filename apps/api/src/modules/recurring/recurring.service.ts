@@ -77,4 +77,18 @@ export class RecurringService {
 
     return { processedCount: dueRules.length };
   }
+
+  async findAll(userId: string) {
+    return await this.prisma.recurringTransaction.findMany({
+      where: { userId, isActive: true },
+    });
+  }
+
+  async delete(userId: string, id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    return await this.prisma.recurringTransaction.update({
+      where: { id, userId },
+      data: { isActive: false },
+    });
+  }
 }
