@@ -17,6 +17,7 @@ import Accounts from './pages/private/Accounts';
 import Categories from './pages/private/Categories';
 import Transactions from './pages/private/Transactions';
 import Budgets from './pages/private/Budgets';
+import Goals from './pages/private/Goals';
 
 const queryClient = new QueryClient();
 
@@ -68,7 +69,7 @@ export function App(): React.JSX.Element {
               <Route path="categories" element={<Categories />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="budgets" element={<Budgets />} />
-              <Route path="goals" element={<PagePlaceholder title="Goals" />} />
+              <Route path="goals" element={<Goals />} />
               <Route path="recurring" element={<PagePlaceholder title="Recurring Transactions" />} />
               <Route path="reports" element={<PagePlaceholder title="Reports" />} />
               <Route path="profile" element={<PagePlaceholder title="Profile Settings" />} />
