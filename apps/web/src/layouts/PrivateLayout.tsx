@@ -93,14 +93,14 @@ export const PrivateLayout: React.FC = () => {
         </div>
       </aside>
 
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 ml-64 flex flex-col min-h-screen">
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-40">
           <h1 className="text-lg font-semibold text-slate-800">
             {menuItems.find((m) => m.path === location.pathname)?.name || 'App Console'}
           </h1>
         </header>
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 min-w-0 p-8">
           <Outlet />
         </main>
       </div>

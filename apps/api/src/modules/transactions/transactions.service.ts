@@ -171,4 +171,33 @@ export class TransactionsService {
       },
     };
   }
+
+  async update(
+    userId: string,
+    transactionId: string,
+    dto: CreateTransactionDto,
+  ) {
+    const amountDecimal = new Prisma.Decimal(dto.amount);
+    return this.prisma.transaction.update({
+      where: { id: transactionId, userId },
+      data: {
+        accountId: dto.accountId,
+        toAccountId: dto.toAccountId || null,
+        categoryId: dto.categoryId || null,
+        type: dto.type,
+        amount: amountDecimal,
+        description: dto.description,
+        notes: dto.notes,
+        transactionDate: dto.transactionDate
+          ? new Date(dto.transactionDate)
+          : new Date(),
+      },
+    });
+  }
+
+  async remove(userId: string, transactionId: string) {
+    return this.prisma.transaction.delete({
+      where: { id: transactionId, userId },
+    });
+  }
 }

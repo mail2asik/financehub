@@ -4,8 +4,11 @@ import {
   Post,
   Body,
   Query,
+  Param,
   UseGuards,
   Request,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 import { TransactionsService } from './transactions.service';
@@ -45,5 +48,21 @@ export class TransactionsController {
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 20,
     );
+  }
+
+  @Patch(':id')
+  @ApiMessage('Transaction updated successfully')
+  update(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: CreateTransactionDto,
+    @Param('id') id: string,
+  ) {
+    return this.transactionsService.update(req.user.id, id, dto);
+  }
+
+  @Delete(':id')
+  @ApiMessage('Transaction deleted successfully')
+  remove(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.transactionsService.remove(req.user.id, id);
   }
 }

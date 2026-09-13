@@ -15,6 +15,7 @@ import ForgotPassword from './pages/public/ForgotPassword';
 import ResetPassword from './pages/public/ResetPassword';
 import Accounts from './pages/private/Accounts';
 import Categories from './pages/private/Categories';
+import Transactions from './pages/private/Transactions';
 
 const queryClient = new QueryClient();
 
@@ -64,7 +65,7 @@ export function App(): React.JSX.Element {
               <Route path="dashboard" element={<PagePlaceholder title="Dashboard" />} />
               <Route path="accounts" element={<Accounts />} />
               <Route path="categories" element={<Categories />} />
-              <Route path="transactions" element={<PagePlaceholder title="Transactions" />} />
+              <Route path="transactions" element={<Transactions />} />
               <Route path="budgets" element={<PagePlaceholder title="Budgets" />} />
               <Route path="goals" element={<PagePlaceholder title="Goals" />} />
               <Route path="recurring" element={<PagePlaceholder title="Recurring Transactions" />} />
