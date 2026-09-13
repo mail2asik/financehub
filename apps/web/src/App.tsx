@@ -11,6 +11,8 @@ import Contact from './pages/public/Contact';
 import Register from './pages/public/Register';
 import Activation from './pages/public/Activation';
 import Login from './pages/public/Login';
+import ForgotPassword from './pages/public/ForgotPassword';
+import ResetPassword from './pages/public/ResetPassword';
 
 const queryClient = new QueryClient();
 
@@ -44,8 +46,8 @@ export function App(): React.JSX.Element {
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="activation" element={<Activation />} />
-              <Route path="forgot-password" element={<PagePlaceholder title="Forgot Password" />} />
-              <Route path="reset-password" element={<PagePlaceholder title="Reset Password" />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
             </Route>
 
             {/* Private Routes */}
