@@ -26,4 +26,27 @@ export class CategoriesService {
       orderBy: { name: 'asc' },
     });
   }
+
+  async update(userId: string, categoryId: string, dto: CreateCategoryDto) {
+    return this.prisma.category.updateMany({
+      where: {
+        id: categoryId,
+        userId,
+      },
+      data: {
+        name: dto.name,
+        type: dto.type,
+        icon: dto.icon,
+      },
+    });
+  }
+
+  async remove(userId: string, categoryId: string) {
+    return this.prisma.category.deleteMany({
+      where: {
+        id: categoryId,
+        userId,
+      },
+    });
+  }
 }
