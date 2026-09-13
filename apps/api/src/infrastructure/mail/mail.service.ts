@@ -8,7 +8,7 @@ export class MailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST || 'localhost',
+      host: process.env.MAIL_HOST || 'financehub-mailpit',
       port: parseInt(process.env.MAIL_PORT || '1025', 10),
       secure: false,
     });
