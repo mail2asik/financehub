@@ -20,6 +20,7 @@ import Budgets from './pages/private/Budgets';
 import Goals from './pages/private/Goals';
 import RecurringTransactions from './pages/private/RecurringTransactions';
 import ReportsPage from './pages/private/ReportsPage';
+import Dashboard from './pages/private/Dashboard';
 
 const queryClient = new QueryClient();
 
@@ -66,7 +67,7 @@ export function App(): React.JSX.Element {
                 </ProtectedRoute>
               }
             >
-              <Route path="dashboard" element={<PagePlaceholder title="Dashboard" />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="accounts" element={<Accounts />} />
               <Route path="categories" element={<Categories />} />
               <Route path="transactions" element={<Transactions />} />
