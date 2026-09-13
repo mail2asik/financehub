@@ -5,6 +5,7 @@ import {
   Get,
   UseGuards,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -15,6 +16,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
+import { UpdateProfileDto } from './dto/UpdateProfileDto.dto';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request as ExpressRequest } from 'express';
 import { ApiMessage } from 'src/common/decorators/api-message.decorator';
@@ -79,5 +81,16 @@ export class AuthController {
   @Get('me')
   getProfile(@Request() req: AuthenticatedRequest) {
     return req.user;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('update-profile')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiMessage('Profile updated successfully')
+  updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(req.user.id, dto);
   }
 }

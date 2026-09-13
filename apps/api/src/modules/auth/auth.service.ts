@@ -10,6 +10,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
+import { UpdateProfileDto } from './dto/UpdateProfileDto.dto';
 import { NotificationsService } from '../../infrastructure/notifications/notifications.service';
 import { ApiException } from 'src/common/exceptions/api.exception';
 
@@ -282,5 +283,16 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const { password, ...profileData } = dto;
+    const data = password
+      ? { ...profileData, passwordHash: await bcrypt.hash(password, 10) }
+      : profileData;
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+    });
   }
 }

@@ -21,6 +21,7 @@ import Goals from './pages/private/Goals';
 import RecurringTransactions from './pages/private/RecurringTransactions';
 import ReportsPage from './pages/private/ReportsPage';
 import Dashboard from './pages/private/Dashboard';
+import ProfileSettings from './pages/private/ProfileSettings';
 
 const queryClient = new QueryClient();
 
@@ -75,7 +76,7 @@ export function App(): React.JSX.Element {
               <Route path="goals" element={<Goals />} />
               <Route path="recurring" element={<RecurringTransactions />} />
               <Route path="reports" element={<ReportsPage />} />
-              <Route path="profile" element={<PagePlaceholder title="Profile Settings" />} />
+              <Route path="profile" element={<ProfileSettings />} />
             </Route>
           </Routes>
         </BrowserRouter>

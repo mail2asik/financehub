@@ -1,0 +1,13 @@
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+export interface UpdateProfilePayload {
+  firstName: string;
+  lastName: string;
+  password?: string;
+}
