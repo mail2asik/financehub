@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, TrendingUp, Zap, PieChart, ArrowRight, CheckCircle2 } from 'lucide-react';
+import dashboardImg from '../../assets/dashboard.png';
 
 export const Home: React.FC = () => {
   const features: string[] = [
@@ -40,14 +41,19 @@ export const Home: React.FC = () => {
             </div>
           </div>
 
-          {/* Banner Placeholder */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-25"></div>
-            <div className="relative bg-white border border-slate-200 rounded-2xl p-8 shadow-xl text-center">
-              <div className="h-64 bg-slate-100 rounded-xl flex items-center justify-center border border-dashed border-slate-300">
-                <p className="text-slate-500 font-medium text-sm">Dashboard Showcase Preview</p>
-              </div>
-            </div>
+          {/* Banner Showcase linked to Register/Dashboard */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+            <Link
+              to="/register"
+              className="relative block bg-white border border-slate-200 rounded-2xl p-2 shadow-xl overflow-hidden transition-transform transform group-hover:-translate-y-1"
+            >
+              <img
+                src={dashboardImg}
+                alt="FinanceHub Dashboard Preview"
+                className="w-full h-auto rounded-xl object-cover"
+              />
+            </Link>
           </div>
         </div>
       </section>

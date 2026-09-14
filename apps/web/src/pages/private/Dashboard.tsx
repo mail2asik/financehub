@@ -235,8 +235,8 @@ const Dashboard: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{tx.description}</h4>
-                      <p className="text-xs text-slate-500">
+                      <h4 className="font-bold text-left text-slate-900 text-sm">{tx.description}</h4>
+                      <p className="text-xs text-left text-slate-500">
                         {tx.account.name} • {tx.category?.name || 'Uncategorized'} • {new Date(tx.transactionDate).toLocaleDateString()}
                       </p>
                     </div>
