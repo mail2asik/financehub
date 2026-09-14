@@ -1,88 +1,31 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    restart: always
-    env_file:
-      - path: .production.env
-        required: true
-      - path: .production.local.env
-        required: false
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - '${MYSQL_PORT}:3306'
-    volumes:
-      - dbdata:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: always
-    ports:
-      - '${REDIS_PORT}:6379'
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: mailpit
-    restart: always
-    ports:
-      - '8025:8025' # Web UI
-      - '1025:1025' # SMTP
-
   api:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
     container_name: financehub-api
-    restart: always
+    restart: unless-stopped
     env_file:
-      - path: .production.env
-        required: true
-      - path: .production.local.env
-        required: false
+      - .production.env
+      - .production.local.env
+    networks:
+      - shared-network
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - mysql
+      - redis
 
   web:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
     container_name: financehub-web
-    restart: always
+    restart: unless-stopped
     env_file:
-      - path: .production.env
-        required: true
-      - path: .production.local.env
-        required: false
+      - .production.env
+      - .production.local.env
+    networks:
+      - shared-network
 
-  nginx:
-    image: nginx:alpine
-    container_name: financehub-nginx
-    restart: always
-    ports:
-      - '80:80'
-    volumes:
-      - ./docker/nginx/production.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - web
-      - api
-
-volumes:
-  dbdata:
-  redis_data:
+networks:
+  shared-network:
+    external: true
