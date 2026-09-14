@@ -1,15 +1,36 @@
-import axios, { type AxiosResponse } from 'axios';
+import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+
+const BASE_URL = 'http://api-financehub.asik.local';
 
 export const api = axios.create({
-  baseURL: 'http://api-financehub.asik.local',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request Interceptor to attach Bearer token
+// Helper variables to manage token refresh state
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: AxiosError | null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+// Request Interceptor: Attach Authorization Header
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('accessToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -19,7 +40,79 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Helper function to extract API error messages from response payloads
+// Response Interceptor: Handle Token Refresh on 401
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Prevent infinite loops if authentication/refresh endpoints fail with 401
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/login');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      if (isRefreshing) {
+        // Queue pending requests while refresh is in progress
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (!refreshToken) {
+        isRefreshing = false;
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
+
+      try {
+        // Call refresh endpoint using raw axios to avoid interceptor loop
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
+
+        if (response.data.success) {
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
+
+          localStorage.setItem('accessToken', newAccessToken);
+          localStorage.setItem('refreshToken', newRefreshToken);
+
+          api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          if (originalRequest.headers) {
+            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          }
+
+          processQueue(null, newAccessToken);
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        processQueue(refreshError as AxiosError, null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+/**
+ * Utility function to parse standard API error responses
+ */
 export const parseApiError = (error: unknown): string[] => {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data;

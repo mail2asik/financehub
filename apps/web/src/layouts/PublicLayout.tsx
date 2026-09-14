@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Wallet, Menu, X, ArrowRight } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Wallet, Menu, X, ArrowRight, LayoutDashboard, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface NavLinkItem {
   name: string;
@@ -10,6 +11,8 @@ interface NavLinkItem {
 export const PublicLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
 
   const navLinks: NavLinkItem[] = [
     { name: 'Home', path: '/' },
@@ -19,6 +22,11 @@ export const PublicLayout: React.FC = () => {
   ];
 
   const isActive = (path: string): boolean => location.pathname === path;
+
+  const handleLogout = async (): Promise<void> => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
@@ -51,18 +59,40 @@ export const PublicLayout: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/login"
-              className="text-sm font-medium text-slate-700 hover:text-indigo-600 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/register"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center gap-1"
-            >
-              Get Started <ArrowRight className="w-4 h-4" />
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-slate-700 hover:text-indigo-600 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center gap-1"
+                >
+                  Get Started <ArrowRight className="w-4 h-4" />
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -92,20 +122,46 @@ export const PublicLayout: React.FC = () => {
               </Link>
             ))}
             <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-              <Link
-                to="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg"
-              >
-                Get Started
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full text-center py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full text-center py-2 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full text-center py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full text-center py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

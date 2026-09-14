@@ -46,12 +46,16 @@ export const PrivateLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-slate-100">
       <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col fixed inset-y-0 z-50">
-        <div className="p-5 flex items-center gap-3 border-b border-slate-800">
+        {/* Linked Header Logo pointing to Landing Home Page */}
+        <Link 
+          to="/" 
+          className="p-5 flex items-center gap-3 border-b border-slate-800 hover:bg-slate-800/50 transition-colors"
+        >
           <div className="p-2 bg-indigo-600 text-white rounded-xl">
             <Wallet className="w-5 h-5" />
           </div>
           <span className="font-bold text-lg text-white">FinanceHub</span>
-        </div>
+        </Link>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
