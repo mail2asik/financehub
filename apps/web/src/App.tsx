@@ -33,13 +33,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-const PagePlaceholder: React.FC<{ title: string }> = ({ title }) => (
-  <div className="p-8 bg-white rounded-xl border border-slate-200 shadow-sm text-center">
-    <h2 className="text-2xl font-bold text-slate-800 mb-2">{title} Page</h2>
-    <p className="text-slate-500">API endpoints will be integrated in subsequent steps.</p>
-  </div>
-);
-
 export function App(): React.JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>

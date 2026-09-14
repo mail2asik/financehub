@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect, type FormEvent } from 'react';
 import { User, Lock, Mail, Shield, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { api, parseApiError } from '../../services/api';
 import type { UserProfile, UpdateProfilePayload } from '../../types/profile';

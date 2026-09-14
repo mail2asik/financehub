@@ -36,6 +36,7 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardSummary();
   }, []);
 
@@ -173,7 +174,7 @@ const Dashboard: React.FC = () => {
                   <div key={b.id} className="p-3.5 rounded-lg border border-slate-100 bg-slate-50/50 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <CategoryIcon icon={b.icon} className="w-4 h-4 text-slate-600" />
+                        <CategoryIcon name={b.icon} className="w-4 h-4 text-slate-600" />
                         <span className="font-bold text-sm text-slate-800">{b.categoryName}</span>
                       </div>
                       <span className="text-xs font-semibold text-slate-500">
@@ -231,7 +232,7 @@ const Dashboard: React.FC = () => {
                       {isTransfer ? (
                         <ArrowRightLeft className="w-5 h-5" />
                       ) : (
-                        <CategoryIcon icon={tx.category?.icon} className="w-5 h-5" />
+                        <CategoryIcon className="w-5 h-5" name={''} />
                       )}
                     </div>
                     <div>

@@ -9,19 +9,6 @@ interface NavLinkItem {
   path: string;
 }
 
-interface NewsletterResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    id: string;
-    email: string;
-    createdAt: string;
-  };
-  code?: string;
-  error?: string;
-  statusCode?: number;
-}
-
 export const PublicLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   
