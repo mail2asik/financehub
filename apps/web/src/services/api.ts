@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 
-const BASE_URL = 'http://api-financehub.asik.local';
+// Read BASE_URL dynamically from environment variables with a safe fallback
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
   baseURL: BASE_URL,
