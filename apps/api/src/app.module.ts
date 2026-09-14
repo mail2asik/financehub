@@ -13,6 +13,8 @@ import { GoalsModule } from './modules/goals/goals.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { NotificationsModule } from './infrastructure/notifications/notifications.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ContactUsModule } from './modules/contact-us/contact-us.module';
+
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     MailModule,
     NotificationsModule,
     ReportsModule,
+    ContactUsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

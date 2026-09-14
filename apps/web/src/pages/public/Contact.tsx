@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { api, parseApiError } from '../../services/api';
 
 interface ContactFormData {
   fullName: string;
@@ -16,15 +17,40 @@ export const Contact: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // API submit action will be integrated here
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Execute POST request to the contact endpoint
+      await api.post('/contact', formData);
+      setSubmitted(true);
+      // Reset form values on success
+      setFormData({
+        fullName: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    } catch (err: unknown) {
+      const messages = parseApiError(err);
+      setError(messages.join(', '));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSubmitted(false);
+    setError(null);
   };
 
   return (
@@ -70,7 +96,7 @@ export const Contact: React.FC = () => {
           </div>
         </div>
 
-        {/* Form */}
+        {/* Form Container */}
         <div className="lg:col-span-2 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
           {submitted ? (
             <div className="text-center py-12 space-y-4">
@@ -79,7 +105,7 @@ export const Contact: React.FC = () => {
               <p className="text-slate-600 text-sm">Thank you for reaching out. A representative will contact you within 24 hours.</p>
               <button
                 type="button"
-                onClick={() => setSubmitted(false)}
+                onClick={handleReset}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm rounded-lg transition"
               >
                 Send Another Message
@@ -87,64 +113,84 @@ export const Contact: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-3 text-rose-700 text-sm">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                  <label className="block text-left text-xs font-semibold text-slate-700 mb-1">Full Name</label>
                   <input
                     type="text"
                     name="fullName"
                     required
+                    disabled={loading}
                     value={formData.fullName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:bg-slate-50"
                     placeholder="John Doe"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                  <label className="block text-left text-xs font-semibold text-slate-700 mb-1">Email Address</label>
                   <input
                     type="email"
                     name="email"
                     required
+                    disabled={loading}
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:bg-slate-50"
                     placeholder="john@example.com"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Subject</label>
+                <label className="block text-left text-xs font-semibold text-slate-700 mb-1">Subject</label>
                 <input
                   type="text"
                   name="subject"
                   required
+                  disabled={loading}
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:bg-slate-50"
                   placeholder="Account Inquiry"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Message</label>
+                <label className="block text-left text-xs font-semibold text-slate-700 mb-1">Message</label>
                 <textarea
                   name="message"
                   rows={5}
                   required
+                  disabled={loading}
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none disabled:bg-slate-50"
                   placeholder="How can we help you?"
                 ></textarea>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow transition flex items-center justify-center gap-2 text-sm"
+                disabled={loading}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow transition flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send className="w-4 h-4" /> Send Message
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" /> Send Message
+                  </>
+                )}
               </button>
             </form>
           )}

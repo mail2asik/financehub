@@ -218,3 +218,14 @@ model GoalContribution {
 
   @@map("goal_contributions")
 }
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  fullName  String   @map("full_name")
+  email     String
+  subject   String
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_submissions")
+}
