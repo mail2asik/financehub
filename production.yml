@@ -10,9 +10,6 @@ services:
       - .production.local.env
     networks:
       - shared-network
-    depends_on:
-      - shared-mysql
-      - shared-redis
 
   web:
     build:
