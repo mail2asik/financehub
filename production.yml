@@ -11,8 +11,8 @@ services:
     networks:
       - shared-network
     depends_on:
-      - mysql
-      - redis
+      - shared-mysql
+      - shared-redis
 
   web:
     build:
