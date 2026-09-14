@@ -14,7 +14,7 @@ import { MailModule } from './infrastructure/mail/mail.module';
 import { NotificationsModule } from './infrastructure/notifications/notifications.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ContactUsModule } from './modules/contact-us/contact-us.module';
-
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -33,6 +33,7 @@ import { ContactUsModule } from './modules/contact-us/contact-us.module';
     NotificationsModule,
     ReportsModule,
     ContactUsModule,
+    NewsletterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

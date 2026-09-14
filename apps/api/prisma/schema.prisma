@@ -229,3 +229,11 @@ model ContactSubmission {
 
   @@map("contact_submissions")
 }
+
+model NewsletterSubscription {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscriptions")
+}

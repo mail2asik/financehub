@@ -1,15 +1,35 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Wallet, Menu, X, ArrowRight, LayoutDashboard, LogOut } from 'lucide-react';
+import { Wallet, Menu, X, ArrowRight, LayoutDashboard, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { api, parseApiError } from '../services/api';
 
 interface NavLinkItem {
   name: string;
   path: string;
 }
 
+interface NewsletterResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: string;
+    email: string;
+    createdAt: string;
+  };
+  code?: string;
+  error?: string;
+  statusCode?: number;
+}
+
 export const PublicLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  
+  // Newsletter Form States
+  const [email, setEmail] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
@@ -26,6 +46,29 @@ export const PublicLayout: React.FC = () => {
   const handleLogout = async (): Promise<void> => {
     await logout();
     navigate('/login');
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      setFeedback({ type: 'error', message: 'Please enter a valid email address.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      await api.post('/newsletter/subscribe', { email });
+      setFeedback({ type: 'success', message: 'Successfully subscribed to the newsletter!' });
+      setEmail('');
+    } catch (err: unknown) {
+      const messages = parseApiError(err);
+      setFeedback({ type: 'error', message: messages.join(', ') });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -204,16 +247,33 @@ export const PublicLayout: React.FC = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 text-sm">Newsletter</h4>
             <p className="text-sm mb-3">Get financial intelligence updates straight to your inbox.</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Enter email"
-                className="px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1"
-              />
-              <button type="button" className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm transition">
-                Join
-              </button>
-            </div>
+            
+            <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email"
+                  disabled={isSubmitting}
+                  className="px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 flex-1 disabled:opacity-50"
+                  required
+                />
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm transition flex items-center justify-center min-w-[60px] disabled:opacity-50"
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Join'}
+                </button>
+              </div>
+
+              {feedback && (
+                <p className={`text-xs ${feedback.type === 'success' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {feedback.message}
+                </p>
+              )}
+            </form>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800 text-xs text-center text-slate-500">
