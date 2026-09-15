@@ -5,6 +5,7 @@ WORKDIR /app
 # Copy dependency manifests and install all dependencies
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 RUN npm ci
 
 # Copy application source files
@@ -23,6 +24,7 @@ ENV NODE_ENV=production
 # Copy package files and install production-only dependencies
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 RUN npm ci --only=production
 RUN npx prisma generate
 
