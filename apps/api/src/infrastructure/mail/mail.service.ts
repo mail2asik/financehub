@@ -10,14 +10,24 @@ export class MailService {
     const isProduction = process.env.NODE_ENV === 'production';
 
     if (isProduction) {
+      const user = process.env.MAIL_USERNAME?.trim();
+      const pass = process.env.MAIL_PASSWORD;
+
+      if (!user || !pass) {
+        throw new Error(
+          'MAIL_USERNAME and MAIL_PASSWORD are required in production',
+        );
+      }
+
       this.transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
         port: parseInt(process.env.MAIL_PORT || '587', 10),
         secure: process.env.MAIL_SECURE === 'true',
         requireTLS: true,
+        authMethod: 'LOGIN',
         auth: {
-          user: process.env.MAIL_USERNAME,
-          pass: process.env.MAIL_PASSWORD,
+          user,
+          pass,
         },
       });
     } else {
